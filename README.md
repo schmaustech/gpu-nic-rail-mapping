@@ -50,6 +50,14 @@ sh-5.1# ./gpu-nic-rail-mapping -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.ru
 Generated 99-machine-config-udev-network.yaml file for OpenShift
 ~~~
 
+This next system was a SuperMicro AMD Instinct type system which had the following devices in it:
+
+* 8 x MI325X - Device ID 1002:74a5
+* 7 x AMD Pensando Systems POLLARA-1Q400 100/200/400G 1-port Card - Device ID 1dd8:1002
+* 1 x NVIDIA ConnectX-7 - Device ID 15b3:1021
+
+One this system since it had multiple network card types associated with GPUs we got to test out how it behaved.  One caveat on this system was that Dmidecode and lspci both failed to show the physical slot number for the Pollara cards while the CX7 card showed its physical slot just fine.
+
 ~~~bash
 # ./gpu-nic-rail-mapping -g 1002:74a5 -n 1dd8:1002,15b3:1021 -u 70-persistent-net.rules -r worker
 
