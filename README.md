@@ -2,6 +2,8 @@
 
 **Goal**: The goal of this project is to provide a simple mechanism to map which GPUs are associated to which NICs on the same PCIe busses inside a baremetal system.  This mapped information can then assist in generating a OpenShift MachineConfig that can identify one network card per GPU on the same PCI root complex and call that the rail nic while marking any others as secondary.   This is primarily for Spectrum-X but could be used across any platform where GPU to NIC coherency is important in regards to configuration for OpenShift.
 
+**Note**: This also provides an example of quick iteration of automating a problem that was just sitting manually in front of us.
+
 ## Contents
 
 - [Why](#why)
