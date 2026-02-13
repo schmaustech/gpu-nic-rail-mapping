@@ -53,6 +53,63 @@ sh-5.1# ./gpu-nic-rail-mapping -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.ru
 Generated 99-machine-config-udev-network.yaml file for OpenShift
 ~~~
 
+Here was the 70-persistent-net.rules file generated.
+
+~~~bash
+sh-5.1# cat 70-persistent-net.rules 
+ACTION=="add", KERNELS=="0000:18:00.0", SUBSYSTEM=="net", NAME="eth_rail0"
+ACTION=="add", KERNELS=="0000:18:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail0"
+ACTION=="add", KERNELS=="0000:1a:00.0", SUBSYSTEM=="net", NAME="eth_sec0"
+ACTION=="add", KERNELS=="0000:1a:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_sec0"
+ACTION=="add", KERNELS=="0000:3a:00.0", SUBSYSTEM=="net", NAME="eth_rail1"
+ACTION=="add", KERNELS=="0000:3a:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail1"
+ACTION=="add", KERNELS=="0000:4d:00.0", SUBSYSTEM=="net", NAME="eth_rail2"
+ACTION=="add", KERNELS=="0000:4d:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail2"
+ACTION=="add", KERNELS=="0000:5d:00.0", SUBSYSTEM=="net", NAME="eth_rail3"
+ACTION=="add", KERNELS=="0000:5d:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail3"
+ACTION=="add", KERNELS=="0000:5f:00.0", SUBSYSTEM=="net", NAME="eth_sec1"
+ACTION=="add", KERNELS=="0000:5f:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_sec1"
+ACTION=="add", KERNELS=="0000:5f:00.1", SUBSYSTEM=="net", NAME="eth_sec2"
+ACTION=="add", KERNELS=="0000:5f:00.1", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_sec2"
+ACTION=="add", KERNELS=="0000:9b:00.0", SUBSYSTEM=="net", NAME="eth_rail4"
+ACTION=="add", KERNELS=="0000:9b:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail4"
+ACTION=="add", KERNELS=="0000:ba:00.0", SUBSYSTEM=="net", NAME="eth_rail5"
+ACTION=="add", KERNELS=="0000:ba:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail5"
+ACTION=="add", KERNELS=="0000:bc:00.0", SUBSYSTEM=="net", NAME="eth_sec3"
+ACTION=="add", KERNELS=="0000:bc:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_sec3"
+ACTION=="add", KERNELS=="0000:bc:00.1", SUBSYSTEM=="net", NAME="eth_sec4"
+ACTION=="add", KERNELS=="0000:bc:00.1", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_sec4"
+ACTION=="add", KERNELS=="0000:ca:00.0", SUBSYSTEM=="net", NAME="eth_rail6"
+ACTION=="add", KERNELS=="0000:ca:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail6"
+ACTION=="add", KERNELS=="0000:cc:00.0", SUBSYSTEM=="net", NAME="eth_sec5"
+ACTION=="add", KERNELS=="0000:cc:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_sec5"
+ACTION=="add", KERNELS=="0000:db:00.0", SUBSYSTEM=="net", NAME="eth_rail7"
+ACTION=="add", KERNELS=="0000:db:00.0", SUBSYSTEM=="infiniband", PROGRAM="rdma_rename %k NAME_FIXED roce_rail7"
+~~~
+
+And finally the OpenShift MachineConfig 99-machine-config-udev-network.yaml for the udev rule naming.
+
+~~~bash
+sh-5.1# cat 99-machine-config-udev-network.yaml 
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+   labels:
+     machineconfiguration.openshift.io/role: worker
+   name: 99-machine-config-udev-network
+spec:
+   config:
+     ignition:
+       version: 3.2.0
+     storage:
+       files:
+       - contents:
+           source: data:text/plain;charset=utf-8;base64,QUNUSU9OPT0iYWRkIiwgS0VSTkVMUz09IjAwMDA6MTg6MDAuMCIsIFNVQlNZU1RFTT09Im5ldCIsIE5BTUU9ImV0aF9yYWlsMCIKQUNUSU9OPT0iYWRkIiwgS0VSTkVMUz09IjAwMDA6MTg6MDAuMCIsIFNVQlNZU1RFTT09ImluZmluaWJhbmQiLCBQUk9HUkFNPSJyZG1hX3JlbmFtZSAlayBOQU1FX0ZJWEVEIHJvY2VfcmFpbDAiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOjFhOjAwLjAiLCBTVUJTWVNURU09PSJuZXQiLCBOQU1FPSJldGhfc2VjMCIKQUNUSU9OPT0iYWRkIiwgS0VSTkVMUz09IjAwMDA6MWE6MDAuMCIsIFNVQlNZU1RFTT09ImluZmluaWJhbmQiLCBQUk9HUkFNPSJyZG1hX3JlbmFtZSAlayBOQU1FX0ZJWEVEIHJvY2Vfc2VjMCIKQUNUSU9OPT0iYWRkIiwgS0VSTkVMUz09IjAwMDA6M2E6MDAuMCIsIFNVQlNZU1RFTT09Im5ldCIsIE5BTUU9ImV0aF9yYWlsMSIKQUNUSU9OPT0iYWRkIiwgS0VSTkVMUz09IjAwMDA6M2E6MDAuMCIsIFNVQlNZU1RFTT09ImluZmluaWJhbmQiLCBQUk9HUkFNPSJyZG1hX3JlbmFtZSAlayBOQU1FX0ZJWEVEIHJvY2VfcmFpbDEiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOjRkOjAwLjAiLCBTVUJTWVNURU09PSJuZXQiLCBOQU1FPSJldGhfcmFpbDIiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOjRkOjAwLjAiLCBTVUJTWVNURU09PSJpbmZpbmliYW5kIiwgUFJPR1JBTT0icmRtYV9yZW5hbWUgJWsgTkFNRV9GSVhFRCByb2NlX3JhaWwyIgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDo1ZDowMC4wIiwgU1VCU1lTVEVNPT0ibmV0IiwgTkFNRT0iZXRoX3JhaWwzIgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDo1ZDowMC4wIiwgU1VCU1lTVEVNPT0iaW5maW5pYmFuZCIsIFBST0dSQU09InJkbWFfcmVuYW1lICVrIE5BTUVfRklYRUQgcm9jZV9yYWlsMyIKQUNUSU9OPT0iYWRkIiwgS0VSTkVMUz09IjAwMDA6NWY6MDAuMCIsIFNVQlNZU1RFTT09Im5ldCIsIE5BTUU9ImV0aF9zZWMxIgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDo1ZjowMC4wIiwgU1VCU1lTVEVNPT0iaW5maW5pYmFuZCIsIFBST0dSQU09InJkbWFfcmVuYW1lICVrIE5BTUVfRklYRUQgcm9jZV9zZWMxIgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDo1ZjowMC4xIiwgU1VCU1lTVEVNPT0ibmV0IiwgTkFNRT0iZXRoX3NlYzIiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOjVmOjAwLjEiLCBTVUJTWVNURU09PSJpbmZpbmliYW5kIiwgUFJPR1JBTT0icmRtYV9yZW5hbWUgJWsgTkFNRV9GSVhFRCByb2NlX3NlYzIiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOjliOjAwLjAiLCBTVUJTWVNURU09PSJuZXQiLCBOQU1FPSJldGhfcmFpbDQiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOjliOjAwLjAiLCBTVUJTWVNURU09PSJpbmZpbmliYW5kIiwgUFJPR1JBTT0icmRtYV9yZW5hbWUgJWsgTkFNRV9GSVhFRCByb2NlX3JhaWw0IgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDpiYTowMC4wIiwgU1VCU1lTVEVNPT0ibmV0IiwgTkFNRT0iZXRoX3JhaWw1IgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDpiYTowMC4wIiwgU1VCU1lTVEVNPT0iaW5maW5pYmFuZCIsIFBST0dSQU09InJkbWFfcmVuYW1lICVrIE5BTUVfRklYRUQgcm9jZV9yYWlsNSIKQUNUSU9OPT0iYWRkIiwgS0VSTkVMUz09IjAwMDA6YmM6MDAuMCIsIFNVQlNZU1RFTT09Im5ldCIsIE5BTUU9ImV0aF9zZWMzIgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDpiYzowMC4wIiwgU1VCU1lTVEVNPT0iaW5maW5pYmFuZCIsIFBST0dSQU09InJkbWFfcmVuYW1lICVrIE5BTUVfRklYRUQgcm9jZV9zZWMzIgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDpiYzowMC4xIiwgU1VCU1lTVEVNPT0ibmV0IiwgTkFNRT0iZXRoX3NlYzQiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOmJjOjAwLjEiLCBTVUJTWVNURU09PSJpbmZpbmliYW5kIiwgUFJPR1JBTT0icmRtYV9yZW5hbWUgJWsgTkFNRV9GSVhFRCByb2NlX3NlYzQiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOmNhOjAwLjAiLCBTVUJTWVNURU09PSJuZXQiLCBOQU1FPSJldGhfcmFpbDYiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOmNhOjAwLjAiLCBTVUJTWVNURU09PSJpbmZpbmliYW5kIiwgUFJPR1JBTT0icmRtYV9yZW5hbWUgJWsgTkFNRV9GSVhFRCByb2NlX3JhaWw2IgpBQ1RJT049PSJhZGQiLCBLRVJORUxTPT0iMDAwMDpjYzowMC4wIiwgU1VCU1lTVEVNPT0ibmV0IiwgTkFNRT0iZXRoX3NlYzUiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOmNjOjAwLjAiLCBTVUJTWVNURU09PSJpbmZpbmliYW5kIiwgUFJPR1JBTT0icmRtYV9yZW5hbWUgJWsgTkFNRV9GSVhFRCByb2NlX3NlYzUiCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOmRiOjAwLjAiLCBTVUJTWVNURU09PSJuZXQiLCBOQU1FPSJldGhfcmFpbDciCkFDVElPTj09ImFkZCIsIEtFUk5FTFM9PSIwMDAwOmRiOjAwLjAiLCBTVUJTWVNURU09PSJpbmZpbmliYW5kIiwgUFJPR1JBTT0icmRtYV9yZW5hbWUgJWsgTkFNRV9GSVhFRCByb2NlX3JhaWw3Igo=
+         filesystem: root
+         mode: 420
+         path: /etc/udev/rules.d/70-persistent-net.rules
+~~~
+
 This next system was a SuperMicro AMD Instinct type system which had the following devices in it:
 
 * 8 x MI325X - Device ID 1002:74a5
@@ -76,3 +133,5 @@ One this system since it had multiple network card types associated with GPUs we
  f5:00.0       f9:00.0     f0:01.1/f1:00.0         NA          1          eth_rail7   roce_rail7             
 Generated 99-machine-config-udev-network.yaml file for OpenShift
 ~~~
+
+Whilst a 70-persistent-net.rules file and 99-machine-config-udev-network.yaml MachineConfig were generated here as well they look very much like the H200 examples.
