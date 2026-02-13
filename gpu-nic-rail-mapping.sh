@@ -71,9 +71,15 @@ do
                nicport=2
                altnicbusid=`echo $nicbusid | sed 's/.$/0/'`
                nicslot=`dmidecode -t slot | grep -B4 $altnicbusid|grep ID|awk -F ': ' {'print $2'}`
+               if [ "$nicslot" = "" ]; then
+                   nicslot="NA"
+               fi
            else
                nicport=1
                nicslot=`dmidecode -t slot | grep -B4 $nicbusid|grep ID|awk -F ': ' {'print $2'}`
+               if [ "$nicslot" = "" ]; then
+                   nicslot="NA"
+               fi
            fi
            if [ "$railflag" -eq "0" ]; then
                etudevname="eth_rail$railcount"
