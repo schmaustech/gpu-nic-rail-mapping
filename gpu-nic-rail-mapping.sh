@@ -29,6 +29,14 @@ if ([ -z "$gpuid" ] || [ -z "$nicid" ] || [ -z "$udevfile" ] || [ -z "$ocprole" 
    exit 1
 fi
 
+# Set table header format 
+divider===============================================
+divider=$divider$divider$divider
+
+header="\n %-12s %12s %10s %20s %11s %10s %10s\n"
+format=" %-12s %8s %19s %10s %10s %18s %12s %12s\n"
+width=100
+
 # Slurp in the GPU devices based on gpuid passed
 mapfile -t my_gpus < <(lspci -nn|grep $gpuid)
 # Slurp in the NIC devices based on nicid passed
@@ -41,6 +49,10 @@ fi
 touch $udevfile
 
 # This is where it gets real and all the logic happens
+# Print table header for console output
+printf "$header" "GPU BusAddr" "NIC BusAddr" "PCIe Switch" "NIC Slot" "NIC Port" "UDEV Eth" "UDEV IB"
+printf "%$width.${width}s\n" "$divider"
+
 railcount=0
 seccount=0
 for (( gpu=0; gpu<${#my_gpus[@]}; gpu++ ))
@@ -74,7 +86,8 @@ do
                seccount=$((seccount+1))
            fi
            # Display to console the details
-           echo "GPU Bus Address: $gpubusid NIC Bus Address: $nicbusid Common PCIe Switch: $nicpcisw NIC Slot: $nicslot NIC Port: $nicport UDEV Eth Name: $etudevname UDEV IB Name: $ibudevname"
+           printf "$format" $gpubusid $nicbusid $nicpcisw $nicslot $nicport $etudevname $ibudevname 
+           #echo "GPU Bus Address: $gpubusid NIC Bus Address: $nicbusid Common PCIe Switch: $nicpcisw NIC Slot: $nicslot NIC Port: $nicport UDEV Eth Name: $etudevname UDEV IB Name: $ibudevname"
            # Write the rail details to udev file
            echo "ACTION==\"add\", KERNELS==\"0000:$nicbusid\", SUBSYSTEM==\"net\", NAME=\"$etudevname\"" >>$udevfile
            echo "ACTION==\"add\", KERNELS==\"0000:$nicbusid\", SUBSYSTEM==\"infiniband\", PROGRAM=\"rdma_rename %k NAME_FIXED $ibudevname\"">>$udevfile
