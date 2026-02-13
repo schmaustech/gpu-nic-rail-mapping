@@ -18,7 +18,7 @@ While there are tools that can provide pieces of this view all the commands have
 
  The Portable Hardware Locality (hwloc) software package provides a portable abstraction of the hierarchical topology of modern architectures, including NUMA memory nodes (DRAM, HBM, non-volatile memory, CXL, etc.), processor packages, shared caches, cores and simultaneous multithreading. It also gathers various system attributes such as cache and memory information as well as the locality of I/O devices such as network interfaces, InfiniBand HCAs or GPUs.
 
-<img src="lstopo.png" style="width: 1000px;" border=0/>
+<img src="lstopo.png" style="width: 800px;" border=0/>
 
 hwloc primarily aims at helping applications with gathering information about increasingly complex parallel computing platforms so as to exploit them accordingly and efficiently. For instance, two tasks that tightly cooperate should probably be placed onto cores sharing a cache. However, two independent memory-intensive tasks should better be spread out onto different processor packages so as to maximize their memory throughput. 
 
