@@ -6,7 +6,8 @@
 # How to use the script if user does not know how
 howto(){
   echo "Usage: gpu-nic-rail-mapping.sh -g <gpu-device-id> -n <nic-device-id> -u <udev-rule-file> -r <openshift node role>"
-  echo "Example: gpu-nic-rail-mapping.sh -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.rules -r worker"
+  echo "Example H200: gpu-nic-rail-mapping.sh -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.rules -r worker"
+  echo "Example AMD-MI325X: gpu-nic-rail-mapping.sh -g 1002:74a5 -n 1dd8:1002|15b3:1021 -u 70-persistent-net.rules -r worker"
 }
 
 # Getopts setup for variables to pass from options
@@ -32,15 +33,17 @@ fi
 # Set table header format 
 divider===============================================
 divider=$divider$divider$divider
-
 header="\n %-12s %12s %10s %20s %11s %10s %10s\n"
 format=" %-12s %8s %19s %10s %10s %18s %12s %12s\n"
 width=100
 
 # Slurp in the GPU devices based on gpuid passed
 mapfile -t my_gpus < <(lspci -nn|grep $gpuid)
+
 # Slurp in the NIC devices based on nicid passed
-mapfile -t my_nics < <(lspci -nn|grep $nicid)
+# Fixup option for nic if multiple device ids passed
+nicid=`echo $nicid |sed 's/,/\|/g'`
+mapfile -t my_nics < <(lspci -n|grep -E $nicid)
 
 # Remove old udev rule file and touch new empty one based on udevfile option
 if [ -f $udevfile ]; then
@@ -64,6 +67,7 @@ do
     for (( nic=0; nic<${#my_nics[@]}; nic++ ))
     do
        nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
+       nicid=`echo ${my_nics[$nic]} | awk '{print $3}'`
        nicpcisw=`lspci -d $nicid -PP | grep $nicbusid | awk -F '/' {'print $1"/"$2'}`
        #echo "NIC $nicpcisw $nicbusid"
        if [ "$nicpcisw" = "$gpupcisw" ]; then
