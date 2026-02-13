@@ -26,7 +26,10 @@ However Hwloc does not ship in OpenShift today and seems heavy handed for the ta
 
 ## Gpu-nic-rail-mapping
 
-The gpu-nic-rail-mapping aims to provide a simple example to identify the GPU to NIC relationship and then generates the MachineConfig for OpenShift to ensure there is one rail per GPU marked.  Below is an example run on a Dell 9680 (H200) system.   The
+The gpu-nic-rail-mapping aims to provide a simple example to identify the GPU to NIC relationship and then generates the MachineConfig for OpenShift to ensure there is one rail per GPU marked.  Below is an example run on a Dell 9680 (H200) system with the following devices in it:
+
+* 8 x H200 GPUs - Device ID 10de:2335
+* 14 x BF3 Cards - Device ID 15b3:a2dc
 
 ~~~bash
 sh-5.1# ./gpu-nic-rail-mapping -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.rules -r worker
