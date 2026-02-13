@@ -3,20 +3,44 @@
 # This script maps GPU/NIC/SLOT for ensuring only one Spectrum-X rail is assigned per GPU on same PCI Switch #
 ##############################################################################################################
 
-### Need to enable passing of options from cli so we can specify our gpu device id and nic device id 
-gpuid="10de:2335"
-nicid="15b3:a2dc"
+# How to use the script if user does not know how
+howto(){
+  echo "Usage: gpu-nic-rail-mapping.sh -g <gpu-device-id> -n <nic-device-id> -u <udev-rule-file> -r <openshift node role>"
+  echo "Example: gpu-nic-rail-mapping.sh -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.rules -r worker"
+}
 
-# Slurp in the GPU devices 
+# Getopts setup for variables to pass from options
+while getopts g:n:u:r:h option
+do
+case "${option}"
+in
+g) gpuid=${OPTARG};;
+n) nicid=${OPTARG};;
+u) udevfile=${OPTARG};;
+r) ocprole=${OPTARG};;
+h) howto; exit 0;;
+\?) howto; exit 1;;
+esac
+done
+
+# Make sure the variables are populated with values otherwise show howto
+if ([ -z "$gpuid" ] || [ -z "$nicid" ] || [ -z "$udevfile" ] || [ -z "$ocprole" ]) then
+   howto
+   exit 1
+fi
+
+# Slurp in the GPU devices based on gpuid passed
 mapfile -t my_gpus < <(lspci -nn|grep $gpuid)
-# Slurp in the NIC devices
+# Slurp in the NIC devices based on nicid passed
 mapfile -t my_nics < <(lspci -nn|grep $nicid)
 
-# Remove old udev rule file and touch new empty one
-rm 70-persistent-net.rules
-touch 70-persistent-net.rules
+# Remove old udev rule file and touch new empty one based on udevfile option
+if [ -f $udevfile ]; then
+    rm $udevfile
+fi
+touch $udevfile
 
-# This is where it gets real
+# This is where it gets real and all the logic happens
 railcount=0
 seccount=0
 for (( gpu=0; gpu<${#my_gpus[@]}; gpu++ ))
@@ -49,9 +73,35 @@ do
                ibudevname="roce_sec$seccount"
                seccount=$((seccount+1))
            fi
+           # Display to console the details
            echo "GPU Bus Address: $gpubusid NIC Bus Address: $nicbusid Common PCIe Switch: $nicpcisw NIC Slot: $nicslot NIC Port: $nicport UDEV Eth Name: $etudevname UDEV IB Name: $ibudevname"
-           echo "ACTION==\"add\", KERNELS==\"0000:$nicbusid\", SUBSYSTEM==\"net\", NAME=\"$etudevname\"" >>70-persistent-net.rules
-           echo "ACTION==\"add\", KERNELS==\"0000:$nicbusid\", SUBSYSTEM==\"infiniband\", PROGRAM=\"rdma_rename \%k NAME_FIXED $ibudevname\"">>70-persistent-net.rules
+           # Write the rail details to udev file
+           echo "ACTION==\"add\", KERNELS==\"0000:$nicbusid\", SUBSYSTEM==\"net\", NAME=\"$etudevname\"" >>$udevfile
+           echo "ACTION==\"add\", KERNELS==\"0000:$nicbusid\", SUBSYSTEM==\"infiniband\", PROGRAM=\"rdma_rename %k NAME_FIXED $ibudevname\"">>$udevfile
        fi
     done
 done
+
+# Take udev file and generate machineconfig for OpenShift
+udev_rules=`cat $udevfile|base64 -w 0`
+cat <<EOF > 99-machine-config-udev-network.yaml
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+   labels:
+     machineconfiguration.openshift.io/role: $ocprole
+   name: 99-machine-config-udev-network
+spec:
+   config:
+     ignition:
+       version: 3.2.0
+     storage:
+       files:
+       - contents:
+           source: data:text/plain;charset=utf-8;base64,$udev_rules
+         filesystem: root
+         mode: 420
+         path: /etc/udev/rules.d/70-persistent-net.rules
+EOF
+echo "Generated 99-machine-config-udev-network.yaml file for OpenShift"
+exit 0
