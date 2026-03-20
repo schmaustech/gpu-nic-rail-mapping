@@ -137,3 +137,29 @@ Generated 99-machine-config-udev-network.yaml file for OpenShift
 ~~~
 
 Whilst a 70-persistent-net.rules file and 99-machine-config-udev-network.yaml MachineConfig were generated here as well they look very much like the H200 examples.
+
+Finally I have an example where I converted the script to run remotely against OpenShift node.
+
+~~~bash
+$ ./remote-gpu-nic-rail-mapping.sh -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.rules -r worker -c dell-h200-2
+
+ GPU BusAddr   NIC BusAddr PCIe Switch             NIC Slot    NIC Port   UDEV Eth    UDEV IB
+====================================================================================================
+ 1b:00.0       18:00.0     15:01.0/16:00.0         40          1          eth_rail0   roce_rail0             
+ 1b:00.0       1a:00.0     15:01.0/16:00.0         42          1           eth_sec0    roce_sec0             
+ 3c:00.0       3a:00.0     37:01.0/38:00.0         41          1          eth_rail1   roce_rail1             
+ 4b:00.0       4d:00.0     48:01.0/49:00.0         38          1          eth_rail2   roce_rail2             
+ 5c:00.0       5d:00.0     59:01.0/5a:00.0         37          1          eth_rail3   roce_rail3             
+ 5c:00.0       5f:00.0     59:01.0/5a:00.0         39          1           eth_sec1    roce_sec1             
+ 5c:00.0       5f:00.1     59:01.0/5a:00.0         39          2           eth_sec2    roce_sec2             
+ 9a:00.0       9b:00.0     97:01.0/98:00.0         32          1          eth_rail4   roce_rail4             
+ bb:00.0       ba:00.0     b7:01.0/b8:00.0         31          1          eth_rail5   roce_rail5             
+ bb:00.0       bc:00.0     b7:01.0/b8:00.0         33          1           eth_sec3    roce_sec3             
+ bb:00.0       bc:00.1     b7:01.0/b8:00.0         33          2           eth_sec4    roce_sec4             
+ cd:00.0       ca:00.0     c7:01.0/c8:00.0         36          1          eth_rail6   roce_rail6             
+ cd:00.0       cc:00.0     c7:01.0/c8:00.0         34          1           eth_sec5    roce_sec5             
+ dc:00.0       db:00.0     d7:01.0/d8:00.0         35          1          eth_rail7   roce_rail7             
+Generated 99-machine-config-udev-network.yaml file for OpenShift
+~~~
+
+That way we do not have to copy the script to the node itself and instead can rely on remote command action.
