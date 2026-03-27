@@ -162,4 +162,48 @@ $ ./remote-gpu-nic-rail-mapping.sh -g 10de:2335 -n 15b3:a2dc -u 70-persistent-ne
 Generated 99-machine-config-udev-network.yaml file for OpenShift
 ~~~
 
-That way we do not have to copy the script to the node itself and instead can rely on remote command action.
+That way we do not have to copy the script to the node itself and instead can rely on remote command action.  
+
+Here is another example of a remote run against a GB200 node.
+
+~~~bash
+$ ./remote-gpu-nic-rail-mapping.sh -g 10de:2941 -n "15b3:a2dc|15b3:1021" -u 70-persistent-net.rules -r master -c arm-openshift-4-21-5-gpu01
+
+ GPU BusAddr   NIC BusAddr PCIe Switch             NIC Slot    NIC Port   UDEV Eth    UDEV IB
+====================================================================================================
+ 0008:01:00.0 0000:03:00.0                  NA          1  eth_rail0         roce_rail0                          
+ 0008:01:00.0 0002:03:00.0                  NA          1   eth_sec0          roce_sec0                          
+ 0008:01:00.0 0006:03:00.0                   4          1   eth_sec1          roce_sec1                          
+ 0008:01:00.0 0006:03:00.1                   4          2   eth_sec2          roce_sec2                          
+ 0008:01:00.0 0010:03:00.0                  NA          1   eth_sec3          roce_sec3                          
+ 0008:01:00.0 0012:03:00.0                  NA          1   eth_sec4          roce_sec4                          
+ 0008:01:00.0 0016:03:00.0                  14          1   eth_sec5          roce_sec5                          
+ 0008:01:00.0 0016:03:00.1                  14          2   eth_sec6          roce_sec6                          
+ 0009:01:00.0 0000:03:00.0                  NA          1  eth_rail1         roce_rail1                          
+ 0009:01:00.0 0002:03:00.0                  NA          1   eth_sec7          roce_sec7                          
+ 0009:01:00.0 0006:03:00.0                   4          1   eth_sec8          roce_sec8                          
+ 0009:01:00.0 0006:03:00.1                   4          2   eth_sec9          roce_sec9                          
+ 0009:01:00.0 0010:03:00.0                  NA          1  eth_sec10         roce_sec10                          
+ 0009:01:00.0 0012:03:00.0                  NA          1  eth_sec11         roce_sec11                          
+ 0009:01:00.0 0016:03:00.0                  14          1  eth_sec12         roce_sec12                          
+ 0009:01:00.0 0016:03:00.1                  14          2  eth_sec13         roce_sec13                          
+ 0018:01:00.0 0000:03:00.0                  NA          1  eth_rail2         roce_rail2                          
+ 0018:01:00.0 0002:03:00.0                  NA          1  eth_sec14         roce_sec14                          
+ 0018:01:00.0 0006:03:00.0                   4          1  eth_sec15         roce_sec15                          
+ 0018:01:00.0 0006:03:00.1                   4          2  eth_sec16         roce_sec16                          
+ 0018:01:00.0 0010:03:00.0                  NA          1  eth_sec17         roce_sec17                          
+ 0018:01:00.0 0012:03:00.0                  NA          1  eth_sec18         roce_sec18                          
+ 0018:01:00.0 0016:03:00.0                  14          1  eth_sec19         roce_sec19                          
+ 0018:01:00.0 0016:03:00.1                  14          2  eth_sec20         roce_sec20                          
+ 0019:01:00.0 0000:03:00.0                  NA          1  eth_rail3         roce_rail3                          
+ 0019:01:00.0 0002:03:00.0                  NA          1  eth_sec21         roce_sec21                          
+ 0019:01:00.0 0006:03:00.0                   4          1  eth_sec22         roce_sec22                          
+ 0019:01:00.0 0006:03:00.1                   4          2  eth_sec23         roce_sec23                          
+ 0019:01:00.0 0010:03:00.0                  NA          1  eth_sec24         roce_sec24                          
+ 0019:01:00.0 0012:03:00.0                  NA          1  eth_sec25         roce_sec25                          
+ 0019:01:00.0 0016:03:00.0                  14          1  eth_sec26         roce_sec26                          
+ 0019:01:00.0 0016:03:00.1                  14          2  eth_sec27         roce_sec27                          
+Generated 99-machine-config-udev-network.yaml file for OpenShift
+~~~
+
+I am not sure about these results.  There are 4 gpus in the system as indicated in the output but the slot designations are off and there are a ton of network interfaces.   Maybe I will troubleshoot it in the future.
