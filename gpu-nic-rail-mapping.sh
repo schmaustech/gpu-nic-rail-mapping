@@ -69,8 +69,6 @@ do
        else
           gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'}`
        fi
-
-   # gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'}`
     railflag=0
     for (( nic=0; nic<${#my_nics[@]}; nic++ ))
     do
@@ -85,9 +83,9 @@ do
        fi
        #echo "NIC $nicpcisw $nicbusid"
        if [ "$nicpcisw" = "$gpupcisw" ]; then
-	   if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
+	       if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
               nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
-	   fi 
+	       fi 
            if [[ "$nicbusid" == *.1 ]]; then
                nicport=2
                altnicbusid=`echo $nicbusid | sed 's/.$/0/'`
