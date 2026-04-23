@@ -65,16 +65,32 @@ railcount=0
 seccount=0
 for (( gpu=0; gpu<${#my_gpus[@]}; gpu++ ))
 do
-    gpubusid=`echo ${my_gpus[$gpu]} | awk '{print $1}'` 
-    gpupcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $gpuid -PP | grep $gpubusid | awk -F '/' {'print $1"/"$2'}`
+    gpubusid=`echo ${my_gpus[$gpu]} | awk '{print $1}' | sed '/000/ s/^.....//'` 
+    if [[ "${my_gpus[$gpu]:0:3}" == "000" ]]; then
+       # This was for AMD systems with longer rootpci
+       gpuprefix=`echo ${my_gpus[$gpu]} | head -c4`
+       gpupcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'} | grep $gpuprefix`
+    else
+       gpupcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'}`
+    fi
+    #gpupcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $gpuid -PP | grep $gpubusid | awk -F '/' {'print $1"/"$2'}`
     railflag=0
     for (( nic=0; nic<${#my_nics[@]}; nic++ ))
     do
-       
-       nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
+       nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}' | sed '/000/ s/^.....//'`
        nicid=`echo ${my_nics[$nic]} | awk '{print $3}'`
-       nicpcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $nicid -PP | grep $nicbusid | awk -F '/' {'print $1"/"$2'}`
+       if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
+          # This was for AMD systems with longer rootpci
+	   nicprefix=`echo ${my_nics[$nic]} | head -c4`
+	   nicpcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $nicid -PP | grep "$nicbusid " | awk -F '/' {'print $1"/"$2'} | grep $nicprefix`
+       else
+	   nicpcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $nicid -PP | grep "$nicbusid " | awk -F '/' {'print $1"/"$2'}`
+       fi
+       #nicpcisw=`oc debug -q node/$nodename -- chroot /host lspci -d $nicid -PP | grep $nicbusid | awk -F '/' {'print $1"/"$2'}`
        if [ "$nicpcisw" = "$gpupcisw" ]; then
+           if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
+               nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
+           fi 
            if [[ "$nicbusid" == *.1 ]]; then
                nicport=2
                altnicbusid=`echo $nicbusid | sed 's/.$/0/'`
