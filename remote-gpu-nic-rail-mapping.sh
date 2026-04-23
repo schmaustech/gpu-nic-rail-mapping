@@ -8,6 +8,7 @@ howto(){
   echo "Usage: remote-gpu-nic-rail-mapping.sh -g <gpu-device-id> -n <nic-device-id> -u <udev-rule-file> -r <openshift node role> -c <nodename>"
   echo "Example H200: remote-gpu-nic-rail-mapping.sh -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.rules -r worker -c dell-h200-2"
   echo "Example AMD-MI325X: remote-gpu-nic-rail-mapping.sh -g 1002:74a5 -n 1dd8:1002|15b3:1021 -u 70-persistent-net.rules -r worker -c amd-mi325-1"
+  echo "Example AMD-MI355X: gpu-nic-rail-mapping.sh -g 1002:75a3 -n 1dd8:1002 -u 70-persistent-net.rules -r worker -c amd-mi355-1"
 }
 
 # Getopts setup for variables to pass from options
