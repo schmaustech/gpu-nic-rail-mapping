@@ -84,8 +84,8 @@ do
        #echo "NIC $nicpcisw $nicbusid"
        if [ "$nicpcisw" = "$gpupcisw" ]; then
 	       if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
-              nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
-	       fi 
+               nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
+           fi 
            if [[ "$nicbusid" == *.1 ]]; then
                nicport=2
                altnicbusid=`echo $nicbusid | sed 's/.$/0/'`
