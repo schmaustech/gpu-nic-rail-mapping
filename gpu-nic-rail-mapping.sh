@@ -83,7 +83,7 @@ do
        fi
        #echo "NIC $nicpcisw $nicbusid"
        if [ "$nicpcisw" = "$gpupcisw" ]; then
-	       if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
+           if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
                nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
            fi 
            if [[ "$nicbusid" == *.1 ]]; then
