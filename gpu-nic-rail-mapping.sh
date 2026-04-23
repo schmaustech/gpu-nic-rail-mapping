@@ -62,13 +62,13 @@ seccount=0
 for (( gpu=0; gpu<${#my_gpus[@]}; gpu++ ))
 do
     gpubusid=`echo ${my_gpus[$gpu]} | awk '{print $1}' | sed '/000/ s/^.....//'` 
-       if [[ "${my_gpus[$gpu]:0:3}" == "000" ]]; then
-          # This was for AMD systems with longer rootpci
-          gpuprefix=`echo ${my_gpus[$gpu]} | head -c4`
-          gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'} | grep $gpuprefix`
-       else
-          gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'}`
-       fi
+    if [[ "${my_gpus[$gpu]:0:3}" == "000" ]]; then
+       # This was for AMD systems with longer rootpci
+       gpuprefix=`echo ${my_gpus[$gpu]} | head -c4`
+       gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'} | grep $gpuprefix`
+    else
+       gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'}`
+    fi
     railflag=0
     for (( nic=0; nic<${#my_nics[@]}; nic++ ))
     do
