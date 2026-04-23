@@ -8,6 +8,7 @@ howto(){
   echo "Usage: gpu-nic-rail-mapping.sh -g <gpu-device-id> -n <nic-device-id> -u <udev-rule-file> -r <openshift node role>"
   echo "Example H200: gpu-nic-rail-mapping.sh -g 10de:2335 -n 15b3:a2dc -u 70-persistent-net.rules -r worker"
   echo "Example AMD-MI325X: gpu-nic-rail-mapping.sh -g 1002:74a5 -n 1dd8:1002|15b3:1021 -u 70-persistent-net.rules -r worker"
+  echo "Example AMD-MI355X: gpu-nic-rail-mapping.sh -g 1002:75a3 -n 1dd8:1002 -u 70-persistent-net.rules -r worker"
 }
 
 # Getopts setup for variables to pass from options
@@ -60,17 +61,33 @@ railcount=0
 seccount=0
 for (( gpu=0; gpu<${#my_gpus[@]}; gpu++ ))
 do
-    gpubusid=`echo ${my_gpus[$gpu]} | awk '{print $1}'` 
-    gpupcisw=`lspci -d $gpuid -PP | grep $gpubusid | awk -F '/' {'print $1"/"$2'}`
-    #echo "GPU $gpupcisw $gpubusid"
+    gpubusid=`echo ${my_gpus[$gpu]} | awk '{print $1}' | sed '/000/ s/^.....//'` 
+       if [[ "${my_gpus[$gpu]:0:3}" == "000" ]]; then
+          # This was for AMD systems with longer rootpci
+          gpuprefix=`echo ${my_gpus[$gpu]} | head -c4`
+          gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'} | grep $gpuprefix`
+       else
+          gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'}`
+       fi
+
+   # gpupcisw=`lspci -d $gpuid -PP | grep "$gpubusid " | awk -F '/' {'print $1"/"$2'}`
     railflag=0
     for (( nic=0; nic<${#my_nics[@]}; nic++ ))
     do
-       nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
+       nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}' | sed '/000/ s/^.....//'`
        nicid=`echo ${my_nics[$nic]} | awk '{print $3}'`
-       nicpcisw=`lspci -d $nicid -PP | grep $nicbusid | awk -F '/' {'print $1"/"$2'}`
+       if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
+          # This was for AMD systems with longer rootpci
+	   nicprefix=`echo ${my_nics[$nic]} | head -c4`
+	   nicpcisw=`lspci -d $nicid -PP | grep "$nicbusid " | awk -F '/' {'print $1"/"$2'} | grep $nicprefix`
+       else
+	   nicpcisw=`lspci -d $nicid -PP | grep "$nicbusid " | awk -F '/' {'print $1"/"$2'}`
+       fi
        #echo "NIC $nicpcisw $nicbusid"
        if [ "$nicpcisw" = "$gpupcisw" ]; then
+	   if [[ "${my_nics[$nic]:0:3}" == "000" ]]; then
+              nicbusid=`echo ${my_nics[$nic]} | awk '{print $1}'`
+	   fi 
            if [[ "$nicbusid" == *.1 ]]; then
                nicport=2
                altnicbusid=`echo $nicbusid | sed 's/.$/0/'`
