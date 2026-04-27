@@ -95,12 +95,20 @@ do
                nicport=2
                altnicbusid=`echo $nicbusid | sed 's/.$/0/'`
                nicslot=`echo "${dmidecode}"| grep -B4 $altnicbusid|grep ID|awk -F ': ' {'print $2'}`
+               ## If dmidecode does not have details like on AMD system then use driver detail
+               if [ "$nicslot" = "" ]; then
+                   nicslot=`oc debug -q node/$nodename -- chroot /host cat /sys/module/ionic/drivers/pci\:ionic/$nicbusid/label | awk {'print $4'}`
+               fi
                if [ "$nicslot" = "" ]; then
                    nicslot="NA"
                fi
            else
                nicport=1
                nicslot=`echo "${dmidecode}"| grep -B4 $nicbusid|grep ID|awk -F ': ' {'print $2'}`
+               ## If dmidecode does not have details like on AMD system then use driver detail
+               if [ "$nicslot" = "" ]; then
+                   nicslot=`oc debug -q node/$nodename -- chroot /host cat /sys/module/ionic/drivers/pci\:ionic/$nicbusid/label | awk {'print $4'}`
+               fi
                if [ "$nicslot" = "" ]; then
                    nicslot="NA"
                fi
