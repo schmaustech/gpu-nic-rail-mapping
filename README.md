@@ -114,25 +114,24 @@ spec:
 
 This next system was a SuperMicro AMD Instinct type system which had the following devices in it:
 
-* 8 x MI325X - Device ID 1002:74a5
+* 8 x MI355X - Device ID 1002:75a3
 * 7 x AMD Pensando Systems POLLARA-1Q400 100/200/400G 1-port Card - Device ID 1dd8:1002
-* 1 x NVIDIA ConnectX-7 - Device ID 15b3:1021
 
 One this system since it had multiple network card types associated with GPUs we got to test out how it behaved.  One caveat on this system was that Dmidecode and lspci both failed to show the physical slot number for the Pollara cards while the CX7 card showed its physical slot just fine.
 
 ~~~bash
-# ./gpu-nic-rail-mapping -g 1002:74a5 -n 1dd8:1002,15b3:1021 -u 70-persistent-net.rules -r worker
+# ./gpu-nic-rail-mapping.sh -n 1dd8:1002 -g 1002:75a3 -u 70-persistent-net.rules -r worker
 
  GPU BusAddr   NIC BusAddr PCIe Switch             NIC Slot    NIC Port   UDEV Eth    UDEV IB
 ====================================================================================================
- 05:00.0       09:00.0     00:01.1/01:00.0         NA          1          eth_rail0   roce_rail0             
- 15:00.0       19:00.0     10:01.1/11:00.0         NA          1          eth_rail1   roce_rail1             
- 65:00.0       69:00.0     60:01.1/61:00.0         NA          1          eth_rail2   roce_rail2             
- 75:00.0       79:00.0     70:01.1/71:00.0         NA          1          eth_rail3   roce_rail3             
- 85:00.0       89:00.0     80:01.1/81:00.0         NA          1          eth_rail4   roce_rail4             
- 95:00.0       99:00.0     90:01.1/91:00.0         NA          1          eth_rail5   roce_rail5             
- e5:00.0       e6:00.0     e0:01.1/e1:00.0          1          1          eth_rail6   roce_rail6             
- f5:00.0       f9:00.0     f0:01.1/f1:00.0         NA          1          eth_rail7   roce_rail7             
+ 0c:00.0      0000:06:00.0 0000:00:01.1/01:00.0          7          1          eth_rail0   roce_rail0             
+ 3d:00.0      0000:3a:00.0 0000:32:01.1/33:00.0          9          1          eth_rail1   roce_rail1             
+ a8:00.0      0000:ac:00.0 0000:a0:01.1/a1:00.0         12          1          eth_rail2   roce_rail2             
+ dc:00.0      0000:d9:00.0 0000:d0:01.1/d1:00.0         10          1          eth_rail3   roce_rail3             
+ 0d:00.0      0001:06:00.0 0001:00:01.1/01:00.0          1          1          eth_rail4   roce_rail4             
+ 3d:00.0      0001:38:00.0 0001:32:01.1/33:00.0          3          1          eth_rail5   roce_rail5             
+ a5:00.0      0001:a9:00.0 0001:a0:01.1/a1:00.0          6          1          eth_rail6   roce_rail6             
+ dc:00.0      0001:d6:00.0 0001:d0:01.1/d1:00.0          4          1          eth_rail7   roce_rail7             
 Generated 99-machine-config-udev-network.yaml file for OpenShift
 ~~~
 
